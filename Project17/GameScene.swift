@@ -12,8 +12,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var starField: SKEmitterNode!
     var player: SKSpriteNode!
     var scoreLabel: SKLabelNode!
+    var gameOverLabel: SKLabelNode!
     
     var possibleEnemies = ["ball", "hammer", "tv"]
+    var gameTimer: Timer?
+    var gameOver = false
     
     var score = 0 {
         didSet {
@@ -46,9 +49,72 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
         
+        gameTimer = Timer.scheduledTimer(timeInterval: 0.35, target: self, selector: #selector(createEnemy), userInfo: nil, repeats: true)
+        
+        
         }
   
-    override func update(_ currentTime: TimeInterval) {
-    
+    @objc func createEnemy() {
+        guard let enemy = possibleEnemies.randomElement() else { return }
+        let sprite = SKSpriteNode(imageNamed: enemy)
+        
+        sprite.position = CGPoint(x: 1200, y: Int.random(in: 50...736))
+        addChild(sprite)
+        
+        sprite.physicsBody = SKPhysicsBody(texture: sprite.texture!, size: sprite.size)
+        sprite.physicsBody?.categoryBitMask = 1
+        sprite.physicsBody?.velocity = CGVector(dx: -500, dy: 0)
+        sprite.physicsBody?.angularVelocity = 5
+        sprite.physicsBody?.linearDamping = 0
+        sprite.physicsBody?.angularDamping = 0
+        
+        if gameOver {
+            gameOverLabel = SKLabelNode(fontNamed: "Chalkduster")
+            gameOverLabel.position = CGPoint(x: 500, y: 350)
+            gameOverLabel.zPosition = +1
+            gameOverLabel.fontColor = .systemRed
+            gameOverLabel.fontSize = 80
+            gameOverLabel.text = "Game Over"
+            addChild(gameOverLabel)
+            sprite.removeFromParent()
+            
+        }
+        
     }
+    
+    override func update(_ currentTime: TimeInterval) {
+        
+        for node in children {
+            if node.position.x < -300 {
+                node.removeFromParent()
+            }
+        }
+        
+        if !gameOver {
+            score += 1
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        var location = touch.location(in: self)
+        
+        if location.y < 100 {
+            location.y = 100
+        } else if location.y > 668 {
+            location.y = 668
+        }
+        player.position = location
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        let explosion = SKEmitterNode(fileNamed: "explosion")!
+        explosion.position = player.position
+        addChild(explosion)
+        
+        player.removeFromParent()
+        gameOver = true
+      
+    }
+    
 }
