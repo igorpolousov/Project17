@@ -210,13 +210,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    // Метод определяющий действие при завершении касания, палец отоврвется от объекта  
+    // Метод определяющий действие при завершении касания, палец отоврвется от объекта
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         var location = touch.location(in: self)
         let object = nodes(at: location)
         
-        if object.contains(player) {
+        if !object.contains(player) {
             location.x = 100
             location.y = 384
             player.position = location
