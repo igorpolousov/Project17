@@ -80,7 +80,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.horizontalAlignmentMode = .left
         addChild(scoreLabel)
       
-        // Указали параметри physicsWorld
+        // Указали параметры physicsWorld
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
 
